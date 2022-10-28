@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bolao.Application", "src\Bo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bolao.Api", "src\Bolao.Api\Bolao.Api.csproj", "{457B6A55-4BDC-4641-B680-B4A3013E2332}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bolao.TesteInjecaoDependencia", "Bolao.TesteInjecaoDependencia\Bolao.TesteInjecaoDependencia.csproj", "{1DA6BAC6-3793-4739-9B95-BBEF618BAD48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{457B6A55-4BDC-4641-B680-B4A3013E2332}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{457B6A55-4BDC-4641-B680-B4A3013E2332}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{457B6A55-4BDC-4641-B680-B4A3013E2332}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA6BAC6-3793-4739-9B95-BBEF618BAD48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DA6BAC6-3793-4739-9B95-BBEF618BAD48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DA6BAC6-3793-4739-9B95-BBEF618BAD48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DA6BAC6-3793-4739-9B95-BBEF618BAD48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

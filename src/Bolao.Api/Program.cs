@@ -1,6 +1,7 @@
 using Bolao.Application;
 using Bolao.Infra;
 using Bolao.Security;
+using Bolao.TesteInjecaoDependencia;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +43,8 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.AddBolaoSecurity(builder.Configuration)
     .AddBolaoSecurityDataBase(builder.Configuration)
     .AddBolaoInfra(builder.Configuration)
-    .AddBolaoApplication();
+    .AddBolaoApplication()
+    .AddTesteInjecaoDependencia();
 
 var app = builder.Build();
 

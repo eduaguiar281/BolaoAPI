@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Bolao.TesteInjecaoDependencia\Bolao.TesteInjecaoDependencia.csproj" />
     <ProjectReference Include="..\Bolao.Application\Bolao.Application.csproj" />
     <ProjectReference Include="..\Bolao.Security\Bolao.Security.csproj" />
   </ItemGroup>
