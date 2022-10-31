@@ -1,8 +1,9 @@
-﻿using Bolao.Infra.Models.Partidas.Enums;
+﻿using Bolao.Core.Models;
+using Bolao.Infra.Models.Partidas.Enums;
 
 namespace Bolao.Infra.Models.Partidas
 {
-    public class Palpite
+    public class Palpite : Entidade<int>
     {
         public Palpite()
         {
@@ -10,7 +11,6 @@ namespace Bolao.Infra.Models.Partidas
             GolsVisitante = 0;
             ResultadoFinal = ResultadoPartida.Empate;
         }
-        public int Id { get; set; }
         public string NomeUsuario { get; set; }
         public Partida Partida { get; set; }
         public ushort GolsAnfitriao { get; set; }

@@ -42,6 +42,9 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
                 .WithMany(fk => fk.Historicos)
                 .HasForeignKey("PartidaId");
 
+            builder.Property(p => p.DataCriacao);
+            builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.Ativo);
         }
     }
 }

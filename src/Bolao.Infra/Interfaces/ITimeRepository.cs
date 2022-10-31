@@ -9,6 +9,6 @@ namespace Bolao.Infra.Interfaces
         Task UpdateAsync(Time time);
         Task<Time> ObterPorIdAsync(int id);
         Task<IEnumerable<Time>> ObterTodosAsync();
-        Task<IEnumerable<Time>>ObterPorNome(string nome);
+        Task<IEnumerable<Time>>ObterPorNomeAsync(string nome);
     }
 }

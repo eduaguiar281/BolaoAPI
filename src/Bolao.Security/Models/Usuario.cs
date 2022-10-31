@@ -1,8 +1,9 @@
-﻿namespace Bolao.Security.Models
+﻿using Bolao.Core.Models;
+
+namespace Bolao.Security.Models
 {
-    public class Usuario
+    public class Usuario : Entidade<int>
     {
-        public int Id { get; set; }
         public string NomeUsuario { get; set; }
         public string NomeCompleto { get; set; }
         public string Email { get; set; }

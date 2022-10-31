@@ -2,11 +2,6 @@
 using Bolao.Infra.Interfaces;
 using Bolao.Infra.Models.Times;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bolao.Infra.Repositories
 {
@@ -52,7 +47,7 @@ namespace Bolao.Infra.Repositories
             _bolaoDataContext.Times.Update(time);
             await _bolaoDataContext.SaveChangesAsync();
         }
-        public async Task<IEnumerable<Time>> ObterPorNome(string nome)
+        public async Task<IEnumerable<Time>> ObterPorNomeAsync(string nome)
         {
             if (string.IsNullOrEmpty(nome))
                 throw new ArgumentNullException(nameof(nome), "Nome do time não foi informado!");

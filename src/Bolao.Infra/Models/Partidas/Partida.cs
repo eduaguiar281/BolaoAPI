@@ -1,9 +1,10 @@
-﻿using Bolao.Infra.Models.Partidas.Enums;
+﻿using Bolao.Core.Models;
+using Bolao.Infra.Models.Partidas.Enums;
 using Bolao.Infra.Models.Times;
 
 namespace Bolao.Infra.Models.Partidas
 {
-    public class Partida
+    public class Partida : Entidade<int>
     {
         public Partida()
         {
@@ -12,7 +13,6 @@ namespace Bolao.Infra.Models.Partidas
             Resultado = ResultadoPartida.Empate;
             Finalizado = false;
         }
-        public int Id { get; set; }
         public string Local { get; set; }
         public DateTime Data { get; set; }
         public Time Anfitriao { get; set; }

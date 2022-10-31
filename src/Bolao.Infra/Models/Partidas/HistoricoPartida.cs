@@ -1,11 +1,11 @@
-﻿using Bolao.Infra.Models.Partidas.Enums;
+﻿using Bolao.Core.Models;
+using Bolao.Infra.Models.Partidas.Enums;
 using Bolao.Infra.Models.Times;
 
 namespace Bolao.Infra.Models.Partidas
 {
-    public class HistoricoPartida
+    public class HistoricoPartida : Entidade<int>
     {
-        public int Id { get; set; }
         public Partida Partida { get; set; }
         public Time Time { get; set; }
         public int Minuto { get; set; }

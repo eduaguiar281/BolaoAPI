@@ -51,11 +51,11 @@ namespace Bolao.Application.Services
 
         private async Task<bool> TimeJaExiste(string nome)
         {
-            return (await _timeRepository.ObterPorNome(nome)).Any();
+            return (await _timeRepository.ObterPorNomeAsync(nome)).Any();
         }
         private async Task<bool> TimeJaExiste(string nome, int id)
         {
-            return (await _timeRepository.ObterPorNome(nome)).Any(time => time.Id != id);
+            return (await _timeRepository.ObterPorNomeAsync(nome)).Any(time => time.Id != id);
         }
     }
 }

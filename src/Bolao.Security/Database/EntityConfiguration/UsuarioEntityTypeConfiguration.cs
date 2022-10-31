@@ -45,6 +45,10 @@ namespace Bolao.Security.Database.EntityConfiguration
             builder.Property(p => p.RefreshTokenExpiryTime)
                    .IsRequired(false);
 
+            builder.Property(p => p.DataCriacao);
+            builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.Ativo);
+
             builder.HasData(new Usuario
             {
                 Id = 1,

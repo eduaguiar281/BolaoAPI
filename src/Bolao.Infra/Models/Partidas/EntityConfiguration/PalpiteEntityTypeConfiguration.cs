@@ -30,6 +30,9 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
                 .IsUnicode(false)
                 .HasConversion(e => e.ToString(),
                                e => (ResultadoPartida)Enum.Parse(typeof(ResultadoPartida), e));
+            builder.Property(p => p.DataCriacao);
+            builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.Ativo);
         }
     }
 }

@@ -42,6 +42,9 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
                 .WithMany()
                 .HasForeignKey("VisitanteId");
 
+            builder.Property(p => p.DataCriacao);
+            builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.Ativo);
         }
 
     }

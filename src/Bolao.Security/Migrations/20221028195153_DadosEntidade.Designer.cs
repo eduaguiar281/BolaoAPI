@@ -4,6 +4,7 @@ using Bolao.Security.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bolao.Security.Migrations
 {
     [DbContext(typeof(UsuarioDataContext))]
-    partial class UsuarioDataContextModelSnapshot : ModelSnapshot
+    [Migration("20221028195153_DadosEntidade")]
+    partial class DadosEntidade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

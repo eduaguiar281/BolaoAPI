@@ -14,6 +14,10 @@ namespace Bolao.Infra.Models.Times.EntityConfiguration
                    .HasMaxLength(50)
                    .IsUnicode(false)
                    .IsRequired(true);
+
+            builder.Property(p => p.DataCriacao);
+            builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.Ativo);
         }
     }
 }
