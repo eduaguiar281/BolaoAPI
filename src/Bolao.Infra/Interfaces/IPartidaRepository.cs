@@ -9,7 +9,7 @@ namespace Bolao.Infra.Interfaces
         Task UpdateAsync(Partida partida);
         Task<Partida> ObterPorIdAsync(int id);
         Task<IEnumerable<Partida>> ObterTodosAsync();
-        Task<IEnumerable<Partida>> ObterPorDataAsync(DateTime dataInicio, DateTime dataFim);
+        Task<IEnumerable<Partida>> ObterPorDataAsync(DateTime? dataInicio, DateTime? dataFim);
         Task<IEnumerable<Partida>> ObterAbertasAsync();
     }
 }

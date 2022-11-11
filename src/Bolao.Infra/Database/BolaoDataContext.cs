@@ -1,4 +1,5 @@
-﻿using Bolao.Infra.Models.Partidas.EntityConfiguration;
+﻿using Bolao.Infra.Models.Partidas;
+using Bolao.Infra.Models.Partidas.EntityConfiguration;
 using Bolao.Infra.Models.Times;
 using Bolao.Infra.Models.Times.EntityConfiguration;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ namespace Bolao.Infra.Database
 
         }
         public DbSet<Time> Times { get; set; }
+        public DbSet<Partida> Partidas { get; set; }
+        public DbSet<Palpite> Palpites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

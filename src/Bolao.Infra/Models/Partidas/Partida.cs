@@ -22,5 +22,6 @@ namespace Bolao.Infra.Models.Partidas
         public bool Finalizado { get; set; }
         public ResultadoPartida Resultado { get; set; }
         public List<HistoricoPartida> Historicos { get; set; }
+        public List<Palpite> Palpites { get; set; }
     }
 }

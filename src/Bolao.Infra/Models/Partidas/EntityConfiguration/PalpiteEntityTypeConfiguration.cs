@@ -16,7 +16,7 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
                 .IsRequired();
 
             builder.HasOne(p => p.Partida)
-                .WithMany()
+                .WithMany(p => p.Palpites)
                 .HasForeignKey("PartidaId");
 
             builder.Property(p => p.GolsVisitante)
