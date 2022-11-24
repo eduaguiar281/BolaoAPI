@@ -12,11 +12,12 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
             
             builder.HasKey(p => p.Id);
             
-            builder.Property(p => p.Minuto).IsRequired();
+            builder.Property(p => p.Minuto).IsRequired(false);
             
             builder.Property(p => p.Jogador)
                 .IsUnicode(false)
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .IsRequired(false);
             
             builder.Property(p => p.Observacoes)
                 .IsUnicode(false)

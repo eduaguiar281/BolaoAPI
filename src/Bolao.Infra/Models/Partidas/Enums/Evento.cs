@@ -10,6 +10,11 @@
         InicioPartida = 5,
         FimPartida = 6,
         InicioEtapa = 7,
-        FimEtapa = 8
+        FimEtapa = 8, 
+        Cancelamento = 9,
+        /*Disputa de Penaltis*/
+        PenaltiConvertido = 10,
+        PenaltiPerdido =11,
+        /*Disputa de Penaltis*/
     }
 }

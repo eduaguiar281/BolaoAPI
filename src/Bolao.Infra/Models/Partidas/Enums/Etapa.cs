@@ -3,6 +3,9 @@
     public enum Etapa
     {
         PrimeiroTempo = 0,
-        SegundoTempo = 1
+        SegundoTempo = 1,
+        PrimeiroTempoProrrogacao = 2,
+        SegundoTempoProrrogacao = 3,
+        Penaltis = 4
     }
 }

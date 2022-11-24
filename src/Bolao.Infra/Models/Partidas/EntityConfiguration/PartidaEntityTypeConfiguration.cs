@@ -44,6 +44,7 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
 
             builder.Property(p => p.DataCriacao);
             builder.Property(p => p.DataAlteracao);
+            builder.Property(p => p.DataCancelamento);
             builder.Property(p => p.Ativo);
         }
 
