@@ -4,6 +4,7 @@ using Bolao.Infra.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bolao.Infra.Migrations
 {
     [DbContext(typeof(BolaoDataContext))]
-    partial class BolaoDataContextModelSnapshot : ModelSnapshot
+    [Migration("20221129174942_RemoverCampoFinalizar")]
+    partial class RemoverCampoFinalizar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

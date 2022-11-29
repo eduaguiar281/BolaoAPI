@@ -1,12 +1,8 @@
 ﻿using Bolao.Infra.Database;
 using Bolao.Infra.Interfaces;
 using Bolao.Infra.Models.Partidas;
+using Bolao.Infra.Models.Partidas.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bolao.Infra.Repositories
 {
@@ -34,7 +30,7 @@ namespace Bolao.Infra.Repositories
 
         public async Task<IEnumerable<Partida>> ObterAbertasAsync()
         {
-            return await _context.Partidas.Where(p => p.Finalizado == false).ToListAsync();
+            return await _context.Partidas.Where(p => ((p.Etapa != Etapa.Finalizada) && (p.Ativo.HasValue && p.Ativo.Value))).ToListAsync();
         }
 
         public async Task<IEnumerable<Partida>> ObterPorDataAsync(DateTime? dataInicio, DateTime? dataFim)

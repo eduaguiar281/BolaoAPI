@@ -4,6 +4,7 @@ using Bolao.Infra.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bolao.Infra.Migrations
 {
     [DbContext(typeof(BolaoDataContext))]
-    partial class BolaoDataContextModelSnapshot : ModelSnapshot
+    [Migration("20221128202417_CampoEtapaDeHistoricoParaPartida")]
+    partial class CampoEtapaDeHistoricoParaPartida
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,6 +152,9 @@ namespace Bolao.Infra.Migrations
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("Finalizado")
+                        .HasColumnType("bit");
 
                     b.Property<int>("GolsAnfitriao")
                         .HasColumnType("int");

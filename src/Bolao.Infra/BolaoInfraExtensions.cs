@@ -13,6 +13,7 @@ namespace Bolao.Infra
         {
             service.AddDbContext<BolaoDataContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             service.AddScoped<ITimeRepository, TimeRepository>();
+            service.AddScoped<IPartidaRepository, PartidaRepository>();
             return service;
         }
 

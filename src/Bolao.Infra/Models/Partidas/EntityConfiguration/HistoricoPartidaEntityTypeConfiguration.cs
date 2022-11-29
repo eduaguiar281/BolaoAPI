@@ -29,19 +29,9 @@ namespace Bolao.Infra.Models.Partidas.EntityConfiguration
                    .HasConversion(e => e.ToString(),
                                   e => (Evento)Enum.Parse(typeof(Evento), e));
 
-            builder.Property(p => p.Etapa)
-                   .HasMaxLength(100)
-                   .IsUnicode(false)
-                   .HasConversion(e => e.ToString(),
-                                  e => (Etapa)Enum.Parse(typeof(Etapa), e));
-
             builder.HasOne(p => p.Time)
                 .WithMany()
                 .HasForeignKey("TimeId");
-
-            builder.HasOne(p => p.Partida)
-                .WithMany(fk => fk.Historicos)
-                .HasForeignKey("PartidaId");
 
             builder.Property(p => p.DataCriacao);
             builder.Property(p => p.DataAlteracao);

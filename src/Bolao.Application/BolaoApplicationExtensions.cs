@@ -14,6 +14,7 @@ namespace Bolao.Application
         public static IServiceCollection AddBolaoApplication(this IServiceCollection service)
         {
             service.AddScoped<ITimesService, TimeService>();
+            service.AddScoped<IPartidaService, PartidaService>();
             return service;
         }
     }

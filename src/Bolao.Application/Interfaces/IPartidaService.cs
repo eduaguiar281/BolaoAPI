@@ -9,6 +9,7 @@ namespace Bolao.Application.Interfaces
     public interface IPartidaService
     {
         Task<Result<IEnumerable<Partida>>> ListarAsync(FiltroListarPartidasViewModel viewModel);
+        Task<Result<Partida>> ObterPorIdAsync(int id);
         Task<Result<Partida>> IncluirAsync(CadastrarPartidaViewModel viewModel);
         Task<Result<Partida>> ModificarAgendamentoAsync(AgendamentoPartidaViewModel viewModel);
         Task<Result<Partida>> CancelarAsync(CancelarPartidaViewModel viewModel);

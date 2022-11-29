@@ -10,7 +10,7 @@ namespace Bolao.Infra.Database
             var optionsBuilder = new DbContextOptionsBuilder<BolaoDataContext>();
             //ATENÇÃO: Nunca deixe aqui o banco de dados de produção ou homologação
             //use apenas local
-            optionsBuilder.UseSqlServer("Server=localhost,2433;Database=bolao-db;User Id=sa;Password=A123456@;");
+            optionsBuilder.UseSqlServer("Server=localhost,2433;Database=bolao-db;User Id=sa;Password=A123456@;Encrypt=True;TrustServerCertificate=True;");
 
             return new BolaoDataContext(optionsBuilder.Options);
         }
