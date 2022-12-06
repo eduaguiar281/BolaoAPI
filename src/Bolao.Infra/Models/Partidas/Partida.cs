@@ -28,10 +28,7 @@ namespace Bolao.Infra.Models.Partidas
         //TODO: Modificar para ReadonlyCollection
         public List<HistoricoPartida> Historicos { get; set; }
         public List<Palpite> Palpites { get; set; }
-
         public Etapa Etapa { get; set; }
-
         public DateTime? DataCancelamento { get; set; }
-         
     }
 }

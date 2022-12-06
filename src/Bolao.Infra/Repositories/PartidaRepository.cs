@@ -47,7 +47,7 @@ namespace Bolao.Infra.Repositories
 
         public async Task<Partida> ObterPorIdAsync(int id)
         {
-            return await _context.Partidas.Include(i => i.Historicos)
+            return await _context.Partidas.Include(i => i.Historicos).AsSplitQuery()
                 .Include(i => i.Anfitriao)
                 .Include(i => i.Visitante)
                 .FirstOrDefaultAsync(p => p.Id == id);

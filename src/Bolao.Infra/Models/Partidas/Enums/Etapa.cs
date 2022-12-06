@@ -1,14 +1,15 @@
 ﻿namespace Bolao.Infra.Models.Partidas.Enums
 {
+    [Flags]
     public enum Etapa
     {
-        PrimeiroTempo = 0,
-        SegundoTempo = 1,
-        PrimeiroTempoProrrogacao = 2,
-        SegundoTempoProrrogacao = 3,
-        Penaltis = 4,
-        Intervalo = 5,
-        NaoIniciada = 6,
-        Finalizada = 7
+        PrimeiroTempo = 1,
+        SegundoTempo = 2,
+        PrimeiroTempoProrrogacao = 4,
+        SegundoTempoProrrogacao = 8,
+        Penaltis = 16,
+        Intervalo = 32,
+        NaoIniciada = 64,
+        Finalizada = 128
     }
 }

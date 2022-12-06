@@ -21,15 +21,44 @@ namespace Bolao.Application.Services
             _timeService = timeService;
         }
 
-        public Task<Result<Partida>> AnularGolAsync(AnularGolViewModel viewModel)
+        public async Task<Result<Partida>> AnularGolAsync(AnularGolViewModel viewModel)
         {
-            throw new NotImplementedException();
-        }
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            
+            Result<HistoricoPartida> historicoResult = ObterHistorico(viewModel.HistoricoId, partidaResult.Value);
+            if (historicoResult.IsFailure)
+                return historicoResult.ConvertFailure<Partida>();
+            
+            Result validationResult = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value),
+                ValidarPartidaDeveEstarEmAndamento(partidaResult.Value),
+                Result.FailureIf(historicoResult.Value.Evento != Evento.Gol, "Histórico de Evento não é de Gol!"));
+            if (validationResult.IsFailure)
+                return validationResult.ConvertFailure<Partida>();
 
-        private async Task<Result<Partida>> ObterPartidaPorId(int id)
-        {
-            Partida partida = await _partidaRepository.ObterPorIdAsync(id);
-            return Result.FailureIf(partida is null, partida, "Partida não foi localizada");
+            if (historicoResult.Value.Time.Id == partidaResult.Value.Anfitriao.Id)
+                partidaResult.Value.GolsAnfitriao -= 1;
+            else
+                partidaResult.Value.GolsVisitante -= 1;
+
+            if (partidaResult.Value.GolsVisitante == partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.Empate;
+            else if (partidaResult.Value.GolsVisitante > partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.VitoriaVisitante;
+            else if (partidaResult.Value.GolsVisitante < partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.VitoriaAnfitriao;
+
+            partidaResult.Value.Historicos.Add(new HistoricoPartida()
+            {
+                Evento = Evento.GolAnulado,
+                Minuto = viewModel.Minuto,
+                Time = historicoResult.Value.Time,
+                Observacoes = $@"Gol de {historicoResult.Value.Jogador} do {historicoResult.Value.Time.Nome} foi anulado.
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult;
         }
 
         public async Task<Result<Partida>> CancelarAsync(CancelarPartidaViewModel viewModel)
@@ -37,10 +66,8 @@ namespace Bolao.Application.Services
             Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
             if (partidaResult.IsFailure)
                 return partidaResult;
-            Result resultValidation = Result.Combine(viewModel.ValidateToResult(),
-                Result.FailureIf(partidaResult.Value.DataCancelamento.HasValue, "Partida já foi cancelada"),
-                Result.FailureIf(partidaResult.Value.Etapa == Etapa.Finalizada, "Partida já foi finalizada"),
-                Result.FailureIf(partidaResult.Value.Etapa != Etapa.NaoIniciada, "Partida já está em andamento!"));
+            Result resultValidation = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value),
+                ValidarPartidaFinalizada(partidaResult.Value), ValidarPartidaInciada(partidaResult.Value));
             if (resultValidation.IsFailure)
                 return resultValidation.ConvertFailure<Partida>();
             partidaResult.Value.Ativo = false;
@@ -59,9 +86,27 @@ namespace Bolao.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<Partida>> FinalizarPrimeiroTempoAsync(FimPrimeiroTempoViewModel viewModel)
+        public async Task<Result<Partida>> FinalizarPrimeiroTempoAsync(FimPrimeiroTempoViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result resultValidation = Result.Combine(ValidarPartidaCancelada(partidaResult.Value), ValidarPartidaFinalizada(partidaResult.Value),
+                ValidarPrimeiroTempoEmAndamento(partidaResult.Value));
+            
+            if (resultValidation.IsFailure)
+                return resultValidation.ConvertFailure<Partida>();
+            
+            partidaResult.Value.Etapa = Etapa.Intervalo;
+            partidaResult.Value.Historicos.Add(new HistoricoPartida
+            {
+                Evento = Evento.FimEtapa,
+                Observacoes = $@"Fim do {_PRIMEIRO_TEMPO}.
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult.Value;
+
         }
 
         public Task<Result<Partida>> FinalizarPrimeiroTempoProrrogacaoAsync(FimPrimeiroTempoProrrogacaoViewModel viewModel)
@@ -93,9 +138,25 @@ namespace Bolao.Application.Services
             return Result.Success(partida);
         }
 
-        public Task<Result<Partida>> IniciarAsync(InicioPartidaViewModel viewModel)
+        public async Task<Result<Partida>> IniciarAsync(InicioPartidaViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result resultValidation = Result.Combine(Result.FailureIf(partidaResult.Value.Data > DateTime.UtcNow, "Não é permitido iniciar partida antes do horário marcado!"),
+                ValidarPartidaCancelada(partidaResult.Value), ValidarPartidaFinalizada(partidaResult.Value), 
+                ValidarPartidaInciada(partidaResult.Value));
+            if (resultValidation.IsFailure)
+                return resultValidation.ConvertFailure<Partida>();
+            partidaResult.Value.Etapa = Etapa.PrimeiroTempo;
+            partidaResult.Value.Historicos.Add(new HistoricoPartida
+            {
+                Evento = Evento.InicioEtapa,
+                Observacoes = $@"Início {_PRIMEIRO_TEMPO}.
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult.Value;
         }
 
         public Task<Result<Partida>> IniciarPrimeiroTempoProrrogacaoAsync(InicioPrimeiroTempoProrrogacaoViewModel viewModel)
@@ -103,9 +164,24 @@ namespace Bolao.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<Partida>> IniciarSegundoTempoAsync(InicioSegundoTempoViewModel viewModel)
+        public async Task<Result<Partida>> IniciarSegundoTempoAsync(InicioSegundoTempoViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result resultValidation = Result.Combine(ValidarPartidaCancelada(partidaResult.Value), ValidarPartidaFinalizada(partidaResult.Value),
+                ValidarInicioSegundoTempo(partidaResult.Value));
+            if (resultValidation.IsFailure)
+                return resultValidation.ConvertFailure<Partida>();
+            partidaResult.Value.Etapa = Etapa.SegundoTempo;
+            partidaResult.Value.Historicos.Add(new HistoricoPartida
+            {
+                Evento = Evento.InicioEtapa,
+                Observacoes = $@"Início {_SEGUNDO_TEMPO}.
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult.Value;
         }
 
         public Task<Result<Partida>> IniciarSegundoTempoProrrogacaoAsync(InicioSegundoTempoProrrogacaoViewModel viewModel)
@@ -123,19 +199,71 @@ namespace Bolao.Application.Services
             Partida partida = await _partidaRepository.ObterPorIdAsync(id);
             return Result.FailureIf(partida is null, partida, $"Partida id={id} não foi localizada!");
         }
-        public Task<Result<Partida>> ModificarAgendamentoAsync(AgendamentoPartidaViewModel viewModel)
+        public async Task<Result<Partida>> ModificarAgendamentoAsync(AgendamentoPartidaViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result validationResult = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value), ValidarPartidaFinalizada(partidaResult.Value),
+                ValidarPartidaInciada(partidaResult.Value));
+            if (validationResult.IsFailure)
+                return validationResult.ConvertFailure<Partida>();
+
+            partidaResult.Value.Local = viewModel.Local;
+            partidaResult.Value.Data = viewModel.Data;
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+
+            return partidaResult;
         }
 
-        public Task<Result<Partida>> RegistrarCartaoAmareloAsync(RegistrarCartaoAmareloViewModel viewModel)
+        public async Task<Result<Partida>> RegistrarCartaoAmareloAsync(RegistrarCartaoAmareloViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result validationResult = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value),
+                ValidarPartidaDeveEstarEmAndamento(partidaResult.Value));
+
+            if (validationResult.IsFailure)
+                return validationResult.ConvertFailure<Partida>();
+            Time timeEvento = viewModel.EhEventoDoAnfitriao ? partidaResult.Value.Anfitriao : partidaResult.Value.Visitante;
+
+            partidaResult.Value.Historicos.Add(new HistoricoPartida()
+            {
+                Evento = Evento.CartaoAmarelo,
+                Jogador = viewModel.NomeJogador,
+                Minuto = viewModel.Minuto,
+                Time = timeEvento,
+                Observacoes = $@"Cartão amarelo para {viewModel.NomeJogador} do {timeEvento.Nome}
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult;
         }
 
-        public Task<Result<Partida>> RegistrarCartaoVermelhoAsync(RegistrarCartaoVermelhoViewModel viewModel)
+        public async Task<Result<Partida>> RegistrarCartaoVermelhoAsync(RegistrarCartaoVermelhoViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result validationResult = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value),
+                ValidarPartidaDeveEstarEmAndamento(partidaResult.Value));
+
+            if (validationResult.IsFailure)
+                return validationResult.ConvertFailure<Partida>();
+            Time timeEvento = viewModel.EhEventoDoAnfitriao ? partidaResult.Value.Anfitriao : partidaResult.Value.Visitante;
+
+            partidaResult.Value.Historicos.Add(new HistoricoPartida()
+            {
+                Evento = Evento.CartaoVermelho,
+                Jogador = viewModel.NomeJogador,
+                Minuto = viewModel.Minuto,
+                Time = timeEvento,
+                Observacoes = $@"Cartão vermelho para {viewModel.NomeJogador} do {timeEvento.Nome}
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult;
         }
 
         public Task<Result<Partida>> RegistrarDisputaDePenaltisAsync(InicioDisputaPenaltisViewModel viewModel)
@@ -148,9 +276,99 @@ namespace Bolao.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<Partida>> RegistrarGolAsync(RegistroGolViewModel viewModel)
+        public async Task<Result<Partida>> RegistrarGolAsync(RegistroGolViewModel viewModel)
         {
-            throw new NotImplementedException();
+            Result<Partida> partidaResult = await ObterPartidaPorId(viewModel.PartidaId);
+            if (partidaResult.IsFailure)
+                return partidaResult;
+            Result validationResult = Result.Combine(viewModel.ValidateToResult(), ValidarPartidaCancelada(partidaResult.Value), 
+                ValidarPartidaDeveEstarEmAndamento(partidaResult.Value));
+            
+            if (validationResult.IsFailure)
+                return validationResult.ConvertFailure<Partida>();
+            if (viewModel.EhEventoDoAnfitriao)
+                partidaResult.Value.GolsAnfitriao += 1;
+            else
+                partidaResult.Value.GolsVisitante += 1;
+
+            if (partidaResult.Value.GolsVisitante == partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.Empate;
+            else if (partidaResult.Value.GolsVisitante > partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.VitoriaVisitante;
+            else if (partidaResult.Value.GolsVisitante < partidaResult.Value.GolsAnfitriao)
+                partidaResult.Value.Resultado = ResultadoPartida.VitoriaAnfitriao;
+
+            Time timeEvento = viewModel.EhEventoDoAnfitriao ? partidaResult.Value.Anfitriao : partidaResult.Value.Visitante;
+            partidaResult.Value.Historicos.Add(new HistoricoPartida()
+            {
+                Evento = Evento.Gol,
+                Jogador = viewModel.NomeJogador,
+                Minuto = viewModel.Minuto,
+                Time = timeEvento,
+                Observacoes = $@"Gol de {viewModel.NomeJogador} do {timeEvento.Nome}
+{viewModel.Observacoes}"
+            });
+            await _partidaRepository.UpdateAsync(partidaResult.Value);
+            return partidaResult;
         }
+
+        #region Métodos Privados
+
+        private async Task<Result<Partida>> ObterPartidaPorId(int id)
+        {
+            Partida partida = await _partidaRepository.ObterPorIdAsync(id);
+            return Result.FailureIf(partida is null, partida, "Partida não foi localizada");
+        }
+
+        private static Result<HistoricoPartida> ObterHistorico(int historicoId, Partida partida)
+        {
+            ArgumentNullException.ThrowIfNull(partida);
+            HistoricoPartida historico = partida.Historicos.FirstOrDefault(h => h.Id == historicoId);
+            return Result.FailureIf(historico is null, historico, "Histórico de evento não foi localizado!");
+        }
+
+        private static Result<Partida> ValidarPartidaCancelada(Partida partida)
+        {
+            return partida is null ? throw new ArgumentNullException()
+                : Result.FailureIf(partida.DataCancelamento.HasValue, partida, "Partida foi cancelada");
+        }
+        private static Result<Partida> ValidarPartidaFinalizada(Partida partida)
+        {
+            return partida is null ? throw new ArgumentNullException()
+                : Result.FailureIf(partida.Etapa == Etapa.Finalizada, partida, "Partida foi finalizada");
+        }
+        private static Result<Partida> ValidarPartidaInciada(Partida partida)
+        {
+            return partida is null ? throw new ArgumentNullException()
+                : Result.FailureIf(partida.Etapa != Etapa.NaoIniciada, partida, "Partida já foi iniciada!");
+        }
+        private static Result<Partida> ValidarPartidaDeveEstarEmAndamento(Partida partida)
+        {
+            Etapa partidaParada = Etapa.Intervalo | Etapa.NaoIniciada | Etapa.Finalizada;
+            return partida is null
+                ? throw new ArgumentNullException()
+                : Result.FailureIf(partidaParada.HasFlag(partida.Etapa), partida, "Partida deve estar em andamento!");
+        }
+
+        private const string _PRIMEIRO_TEMPO = "1º tempo";
+        private const string _SEGUNDO_TEMPO = "2º tempo";
+
+        private static Result<Partida> ValidarPrimeiroTempoEmAndamento(Partida partida)
+        {
+            return partida is null
+                ? throw new ArgumentNullException()
+                : Result.FailureIf(partida.Etapa != Etapa.PrimeiroTempo, partida, "Partida não está no primeiro tempo!");
+        }
+        private static Result ValidarInicioSegundoTempo(Partida partida)
+        {
+            return partida is null
+                ? throw new ArgumentNullException()
+                : Result.Combine<Partida>(
+                  Result.SuccessIf<Partida>(partida.Etapa == Etapa.Intervalo, partida, "Partida não está no intervalo!"),
+                  Result.SuccessIf<Partida>((partida.Etapa == Etapa.Intervalo) && 
+                    (partida.Historicos.Count(h => h.Evento == Evento.InicioEtapa) == 1), 
+                     partida, "Primeiro tempo não foi finalizado!")); 
+        }
+        #endregion
     }
 }
